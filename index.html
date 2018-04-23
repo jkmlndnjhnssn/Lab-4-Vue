@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Lab 4 miniräknare</title>
+    <meta charset='utf-8'>
+    <script src='https://cdn.jsdelivr.net/npm/vue'></script>
+    <script>
+        window.addEventListener('load', () => {
+            let vm = new Vue({
+                el: '#calculator',
+                data: {
+                    sum: '0',
+                    memory: undefined,
+                    operation: undefined,
+                    clearNumbers: false,
+                    equalClick: false,
+                    previousOperation: undefined,
+                    showSquareRoot: true
+                },
+                methods: {
+                    clear: function() {
+                        this.sum = '0';
+                        this.memory = undefined;
+                        this.operation = undefined;
+                        this.clearNumbers = false;
+                        this.equalClick = false;
+                    },
+
+
+                    addToInput: function() {
+                        if (this.sum !== 'Syntax Error') {
+                            if (this.equalClick == true) {
+                                this.clear();
+                            }
+                            if (this.clearNumbers) {
+                                this.sum = '';
+                                this.clearNumbers = false;
+                            }
+                            if (this.sum.length != 10) {
+                                if (this.sum === '0') {
+                                    this.sum = event.target.innerText;
+                                } else {
+                                    this.sum += event.target.innerText;
+                                }
+                            }
+                        }
+                    },
+                    decimal: function(event) {
+                        if (this.sum !== 'Syntax Error') {
+                            if (this.clearNumbers == true) {
+                                this.sum = '0.';
+                                this.clearNumbers = false;
+                            }
+                            if (!this.sum.includes('.')) {
+                                if (this.equalClick == true) {
+                                    this.clear();
+                                }
+                                this.sum += event.target.innerText;
+                            }
+                            this.isNegative();
+                        }
+                    },
+
+                    number: function(num) {
+                        if (this.sum !== 'Syntax Error') {
+                            let nr = 10;
+
+
+                            let nrDecimal = undefined;
+
+                            function countNumber(num) {
+                                let sumDec = num.toString();
+                                for (let i = 0; i < sumDec.length; i++) {
+                                    if (sumDec[i] === '.') {
+                                        nrDecimal = nr - i;
+                                        return i;
+                                    }
+                                }
+                            }
+                            if (num > 9999999999) {
+                                return 'Syntax Error';
+                                
+                            } else if (num.toString().length > 10) {
+                                countNumber(num);
+                                return num.toFixed(nrDecimal);
+                            } else {
+                                return num;
+                            }
+                            this.isNegative();
+                        }
+                    },
+                    add: function(event) {
+                        if (this.sum !== 'Syntax Error') {
+                            this.previousOperation = '+';
+                            if (this.memory == undefined) {
+                                this.memory = parseFloat(this.sum);
+                            } else {
+                                this.calc();
+                            }
+                            this.clearNumbers = true;
+                            this.operation = '+';
+                        }
+                    },
+
+
+                    subtract: function(event) {
+                        if (this.sum !== 'Syntax Error') {
+                            this.previousOperation = '-';
+                            if (this.memory == undefined) {
+                                this.memory = parseFloat(this.sum);
+                            } else {
+                                this.calc();
+                            }
+                            this.clearNumbers = true;
+                            this.operation = '-';
+                        }
+                    },
+
+                    multiplicate: function(event) {
+                        if (this.sum !== 'Syntax Error') {
+                            this.previousOperation = '*';
+                            if (this.memory == undefined) {
+                                this.memory = parseFloat(this.sum);
+                            } else {
+                                this.calc();
+                            }
+                            this.clearNumbers = true;
+                            this.operation = '*';
+                        }
+                    },
+
+
+
+                    division: function(event) {
+                        if (this.sum !== 'Syntax Error') {
+                            this.previousOperation = '/';
+                            if (this.memory == undefined) {
+                                this.memory = parseFloat(this.sum);
+                            } else {
+                                this.calc();
+                            }
+                            this.clearNumbers = true;
+                            this.operation = '/';
+                        }
+                    },
+
+
+                    equalTo: function(event) {
+                        if (this.operation == '+') {
+                            this.memory += parseFloat(this.sum);
+                            this.sum = this.number(this.memory);
+                            this.clearNumbers = true;
+                        }
+                        if (this.operation == '-') {
+                            this.memory -= parseFloat(this.sum);
+                            this.sum = this.number(this.memory);
+                            this.clearNumbers = true;
+                        }
+                        if (this.operation == '*') {
+                            this.memory *= parseFloat(this.sum);
+                            this.sum = this.number(this.memory);
+                            this.clearNumbers = true;
+                        }
+                        if (this.operation == '/') {
+                            this.memory /= parseFloat(this.sum);
+                            this.sum = this.number(this.memory);
+                            this.clearNumbers = true;
+                        }
+                        if (this.operation == '') {
+
+                        }
+                        if (this.operation == '√') {
+                            this.memory += parseFloat(this.sum);
+                            this.sum = this.number(this.memory);
+                            this.clearNumbers = true;
+                        }
+                        this.equalClick = true;
+                        this.operation = undefined;
+                        this.previousOperation = undefined;
+                        this.isNegative();
+                    },
+
+
+                    squareRoot: function(event) {
+                        if (this.sum !== 'Syntax Error' && this.sum > 0) {
+                            let temp = this.number(Math.sqrt(this.sum));
+                            if (this.equalClick == true) {
+                                this.clear();
+                            }
+                            this.sum = temp;
+                            this.clearNumbers = true;
+                        }
+                        this.isNegative();
+                    },
+
+
+
+                    square: function(event) {
+                        if (this.sum !== 'Syntax Error') {
+                            let temp = this.number(Math.pow(this.sum, 2));
+                            if (this.equalClick == true) {
+                                this.clear();
+                            }
+                            this.sum = temp;
+                            this.clearNumbers = true;
+                        }
+                    },
+
+
+
+                    calc: function() {
+                        if (this.equalClick == true) {
+                            this.sum = this.number(this.memory);
+                            this.equalClick = false;
+                        } else {
+                            if (this.operation == '+') {
+                                this.memory += parseFloat(this.sum);
+                                this.sum = this.number(this.memory);
+                            }
+                            if (this.operation == '-') {
+                                this.memory -= parseFloat(this.sum);
+                                this.sum = this.number(this.memory);
+                            }
+                            if (this.operation == '*') {
+                                this.memory *= parseFloat(this.sum);
+                                this.sum = this.number(this.memory);
+                            }
+                            if (this.operation == '/') {
+                                this.memory /= parseFloat(this.sum);
+                                this.sum = this.number(this.memory);
+                            }
+
+                        }
+                        this.isNegative();
+                    },
+
+
+                    isNegative: function() {
+                        if (parseFloat(this.sum) < 0 || this.memory < 0) {
+                            this.showSquareRoot = false;
+                        } else {
+                            this.showSquareRoot = true;
+                        }
+                    }
+                }
+            });
+        });
+
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica', sans-serif;
+        }
+
+        body {
+            background-color: #c0deed;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 10px;
+            color: #66757f;
+        }
+
+        #calculator {
+            position: relative;
+            width: 400px;
+            height: 500px;
+            margin: auto;
+            margin-top: 50px;
+            background-color: #0084b4;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, .5);
+        }
+
+        #result {
+            position: relative;
+            width: 90%;
+            height: 15%;
+            margin: auto;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            background-color: white;
+        }
+
+        #resultScreen {
+            position: absolute;
+            width: 95%;
+            top: 15px;
+            font-size: 2em;
+            background-color: white;
+            text-align: right;
+            padding: 5px;
+            border-radius: 10px;
+            margin: auto;
+            color: #66757f;
+        }
+
+        #calculatorInputs {
+            position: absolute;
+            width: 95%;
+            height: 80%;
+            margin: auto;
+            left: 10px;
+            margin-top: 60px;
+        }
+
+        #calcBtns {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .btnLine {
+            display: flex;
+            height: 20%;
+        }
+
+        .btns {
+            flex: 1 1 auto;
+            width: 20%;
+            font-size: 1.5em;
+            margin: 3px;
+            background-color: #8ec1da;
+            color: white;
+            border-radius: 10px;
+            border-style: none;
+            padding: 5px;
+        }
+
+        .btns:hover {
+            transition: .2s;
+            background-color: #55acee;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Miniräknare - lab 4</h1>
+    <div id='calculator'>
+        
+        <div id='calculatorDiv'>
+            
+            <div id='result'>
+                
+                <p id='resultScreen'>{{sum}}</p>
+            </div>
+            <div id='calculatorInputs'>
+                
+                <div id='calcBtns'>
+                
+                    <div class='btnLine'>
+                    
+                        <button class='btns' v-on:click='clear'>c</button>
+                        <button class='btns' v-on:click='square'>x²</button>
+                        <button class='btns' v-show='showSquareRoot' v-on:click='squareRoot'>√</button>
+                        <button class='btns' v-on:click='division'>/</button>
+                    </div>
+                    
+                    <div class='btnLine'>
+                    
+                        <button class='btns' v-on:click='addToInput'>7</button>
+                        <button class='btns' v-on:click='addToInput'>8</button>
+                        <button class='btns' v-on:click='addToInput'>9</button>
+                        <button class='btns' v-on:click='multiplicate'>x</button>
+                    </div>
+                    
+                    <div class='btnLine'>
+                    
+                        <button class='btns' v-on:click='addToInput'>4</button>
+                        <button class='btns' v-on:click='addToInput'>5</button>
+                        <button class='btns' v-on:click='addToInput'>6</button>
+                        <button class='btns' v-on:click='subtract'>-</button>
+                    </div>
+                    
+                    <div class='btnLine'>
+                    
+                        <button class='btns' v-on:click='addToInput'>1</button>
+                        <button class='btns' v-on:click='addToInput'>2</button>
+                        <button class='btns' v-on:click='addToInput'>3</button>
+                        <button class='btns' v-on:click='add'>+</button>
+                    </div>
+                    
+                    <div class='btnLine' id='bottom'>
+                    
+                        <button class='btns' v-on:click='addToInput'>0</button>
+                        <button class='btns' v-on:click='decimal'>.</button>
+                        <button class='btns' v-on:click='equalTo'>=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
